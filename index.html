@@ -1,0 +1,2405 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetLux — Премиум-сервис для владельцев домашних животных</title>
+  <meta name="description" content="Премиум-сервис для владельцев домашних животных: уход, онлайн-бронирование, личный кабинет, календарь." />
+  <style>
+    /* =========================
+       БАЗОВЫЕ ПЕРЕМЕННЫЕ И СБРОС
+       ========================= */
+    :root {
+      --bg: #0b0d12;
+      --bg-soft: #111521;
+      --card: rgba(255, 255, 255, 0.06);
+      --card-strong: rgba(255, 255, 255, 0.10);
+      --text: #f5f2eb;
+      --muted: #b9b4a8;
+      --gold: #d7b46a;
+      --gold-2: #f0cf8c;
+      --line: rgba(255, 255, 255, 0.12);
+      --danger: #ff6b6b;
+      --success: #63d19e;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+      --max: 1180px;
+    }
+
+    body.light-theme {
+      --bg: #f6f3ee;
+      --bg-soft: #ebe5dc;
+      --card: rgba(255, 255, 255, 0.86);
+      --card-strong: rgba(255, 255, 255, 0.96);
+      --text: #1e1b15;
+      --muted: #635d54;
+      --gold: #b78d43;
+      --gold-2: #c79c4f;
+      --line: rgba(30, 27, 21, 0.16);
+      --danger: #d35a5a;
+      --success: #2f9b6b;
+      --shadow: 0 20px 45px rgba(110, 90, 50, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background: radial-gradient(1200px 700px at 90% -10%, rgba(215, 180, 106, 0.10), transparent 45%),
+                  radial-gradient(1000px 650px at -10% 10%, rgba(240, 207, 140, 0.08), transparent 50%),
+                  var(--bg);
+      color: var(--text);
+      font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img, svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    .container {
+      width: min(var(--max), 92%);
+      margin: 0 auto;
+    }
+
+    .section {
+      padding: 84px 0;
+    }
+
+    .section-title {
+      font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+      margin-bottom: 14px;
+      letter-spacing: 0.2px;
+    }
+
+    .section-subtitle {
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.6;
+      margin-bottom: 34px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gold-2);
+      border: 1px solid rgba(215, 180, 106, 0.4);
+      background: rgba(215, 180, 106, 0.10);
+      padding: 8px 14px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      backdrop-filter: blur(6px);
+    }
+
+    /* =========================
+       HEADER / NAV
+       ========================= */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 120;
+      backdrop-filter: blur(10px);
+      background: rgba(11, 13, 18, 0.7);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav {
+      height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      font-size: 1.05rem;
+    }
+
+    .brand-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #fff4d7 0%, var(--gold-2) 35%, var(--gold) 70%);
+      box-shadow: 0 0 24px rgba(215, 180, 106, 0.65);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-weight: 600;
+      transition: 0.25s ease;
+      font-size: 0.92rem;
+    }
+
+    .btn-primary {
+      color: #1d1505;
+      background: linear-gradient(120deg, var(--gold), var(--gold-2));
+      box-shadow: 0 10px 30px rgba(215, 180, 106, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn-ghost {
+      color: var(--text);
+      background: transparent;
+      border: 1px solid var(--line);
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .mobile-toggle {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    /* =========================
+       HERO
+       ========================= */
+    .hero {
+      padding: 86px 0 76px;
+    }
+
+    .hero-wrap {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 26px;
+      align-items: stretch;
+    }
+
+    .hero-left,
+    .hero-right {
+      background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-left {
+      padding: 36px;
+      min-height: 440px;
+    }
+
+    .hero-left::before {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      right: -140px;
+      top: -180px;
+      background: radial-gradient(circle, rgba(215,180,106,0.2), transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 4.8vw, 3.65rem);
+      line-height: 1.1;
+      margin-bottom: 16px;
+      max-width: 640px;
+      letter-spacing: 0.2px;
+    }
+
+    .hero-text {
+      color: var(--muted);
+      max-width: 620px;
+      line-height: 1.7;
+      margin-bottom: 26px;
+    }
+
+    .hero-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 14px;
+    }
+
+    .stat h4 {
+      font-size: 1.22rem;
+      margin-bottom: 4px;
+      color: var(--gold-2);
+    }
+
+    .stat p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .hero-right {
+      padding: 30px;
+      display: grid;
+      gap: 12px;
+      align-content: center;
+    }
+
+    .trust-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .trust-icon {
+      width: 34px;
+      min-width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(130deg, rgba(215,180,106,0.28), rgba(240,207,140,0.14));
+      display: grid;
+      place-items: center;
+      color: var(--gold-2);
+      font-weight: 700;
+      border: 1px solid rgba(215,180,106,0.4);
+    }
+
+    .trust-card h5 {
+      margin-bottom: 4px;
+      font-size: 0.97rem;
+    }
+
+    .trust-card p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    /* =========================
+       СЕТКИ КАРТОЧЕК
+       ========================= */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(215, 180, 106, 0.5);
+    }
+
+    .card h3 {
+      margin: 10px 0 8px;
+      font-size: 1.15rem;
+    }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.94rem;
+    }
+
+    .icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(130deg, rgba(215,180,106,0.30), rgba(255,255,255,0.05));
+      border: 1px solid rgba(215,180,106,0.45);
+      color: var(--gold-2);
+      font-weight: 700;
+    }
+
+    /* =========================
+       ТАРИФЫ
+       ========================= */
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      align-items: stretch;
+      position: relative;
+      z-index: 1;
+    }
+
+    #pricing .container {
+      position: relative;
+      isolation: isolate;
+    }
+
+    #pricing .container::before,
+    #pricing .container::after {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      filter: blur(34px);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.45;
+      animation: orbFloat 9s ease-in-out infinite;
+    }
+
+    #pricing .container::before {
+      left: -70px;
+      top: 110px;
+      background: radial-gradient(circle, rgba(215, 180, 106, 0.34), transparent 70%);
+    }
+
+    #pricing .container::after {
+      right: -80px;
+      bottom: 30px;
+      background: radial-gradient(circle, rgba(240, 207, 140, 0.27), transparent 70%);
+      animation-delay: -3.2s;
+    }
+
+    .plan {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+    }
+
+    .plan:hover {
+      transform: translateY(-4px);
+      border-color: rgba(215, 180, 106, 0.55);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+    }
+
+    .plan::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      background: linear-gradient(120deg, transparent 38%, rgba(255,255,255,0.14) 50%, transparent 62%);
+      transform: translateX(-130%);
+      transition: transform 0.65s ease;
+      pointer-events: none;
+    }
+
+    .plan:hover::after {
+      transform: translateX(130%);
+    }
+
+    .plan-name {
+      color: var(--gold-2);
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .plan-price-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin: 8px 0 6px;
+    }
+
+    .plan.popular {
+      border: 1px solid rgba(215, 180, 106, 0.62);
+      background: linear-gradient(165deg, rgba(215,180,106,0.15), rgba(255,255,255,0.06));
+      box-shadow: 0 14px 40px rgba(215,180,106,0.18);
+    }
+
+    .plan h3 {
+      margin-bottom: 6px;
+      font-size: 1.2rem;
+    }
+
+    .plan .price {
+      font-size: 2rem;
+      color: var(--gold-2);
+      margin: 0;
+      line-height: 1;
+    }
+
+    .price-old {
+      color: var(--muted);
+      text-decoration: line-through;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .plan .period {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+
+    .features {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      margin-bottom: 20px;
+      color: var(--muted);
+      font-size: 0.93rem;
+      flex: 1;
+    }
+
+    .features li::before {
+      content: "✓";
+      color: var(--success);
+      margin-right: 8px;
+      font-weight: 700;
+    }
+
+    .plan-note {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+    }
+
+    .subscriptions-grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subscription-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+    }
+
+    .subscription-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(215, 180, 106, 0.5);
+      box-shadow: 0 16px 38px rgba(0,0,0,0.26);
+    }
+
+    .subscription-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(215, 180, 106, 0.45);
+      color: var(--gold-2);
+      background: rgba(215, 180, 106, 0.12);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
+
+    .plan-ribbon {
+      position: absolute;
+      top: 14px;
+      right: -38px;
+      transform: rotate(35deg);
+      background: linear-gradient(120deg, var(--gold), var(--gold-2));
+      color: #1d1505;
+      font-weight: 700;
+      font-size: 0.72rem;
+      padding: 6px 44px;
+      box-shadow: 0 8px 24px rgba(215, 180, 106, 0.35);
+    }
+
+    .subscription-card h4 {
+      margin-bottom: 8px;
+    }
+
+    .subscription-perks {
+      list-style: none;
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .subscription-perks li::before {
+      content: "✿";
+      color: var(--gold-2);
+      margin-right: 8px;
+    }
+
+    /* =========================
+       ФОРМЫ И ИНПУТЫ
+       ========================= */
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(215, 180, 106, 0.7);
+      background: rgba(255,255,255,0.06);
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .status {
+      margin-top: 8px;
+      min-height: 20px;
+      font-size: 0.9rem;
+    }
+
+    .status.success { color: var(--success); }
+    .status.error { color: var(--danger); }
+
+    /* =========================
+       ЛИЧНЫЙ КАБИНЕТ
+       ========================= */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 14px;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      border-color: rgba(215, 180, 106, 0.7);
+      color: var(--gold-2);
+      background: rgba(215, 180, 106, 0.12);
+    }
+
+    .hidden { display: none !important; }
+
+    .user-chip {
+      border: 1px solid rgba(215,180,106,0.4);
+      background: rgba(215,180,106,0.10);
+      color: var(--gold-2);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.86rem;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .booking-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .booking-item {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .booking-meta {
+      display: grid;
+      gap: 3px;
+    }
+
+    .booking-meta strong {
+      color: var(--gold-2);
+    }
+
+    .btn-danger {
+      border: 1px solid rgba(255, 107, 107, 0.55);
+      background: rgba(255, 107, 107, 0.12);
+      color: #ffc3c3;
+      padding: 7px 11px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    /* =========================
+       КАЛЕНДАРЬ
+       ========================= */
+    .calendar {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .cal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+    }
+
+    .cal-weekday,
+    .cal-day {
+      padding: 10px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      min-height: 52px;
+    }
+
+    .cal-weekday {
+      color: var(--muted);
+      font-size: 0.82rem;
+      background: rgba(255,255,255,0.02);
+      min-height: auto;
+    }
+
+    .cal-day {
+      font-size: 0.9rem;
+      display: flex;
+      align-items: start;
+      justify-content: flex-start;
+      position: relative;
+    }
+
+    .cal-day.booked::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      box-shadow: 0 0 10px rgba(215,180,106,0.55);
+    }
+
+    .cal-day.today {
+      background: rgba(215,180,106,0.10);
+    }
+
+    .cal-day.other-month {
+      color: #6f7178;
+      background: rgba(0,0,0,0.12);
+    }
+
+    .footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .testimonial-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+
+    .testimonial-stars {
+      color: var(--gold-2);
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+      font-size: 0.95rem;
+    }
+
+    .testimonial-text {
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 12px;
+      font-size: 0.93rem;
+    }
+
+    .testimonial-author {
+      font-size: 0.9rem;
+      color: var(--text);
+      opacity: 0.9;
+    }
+
+    .slot-hint {
+      margin-top: 8px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .boarding-questionnaire {
+      border: 1px dashed var(--line);
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      padding: 12px;
+      animation: fadeInUp 0.35s ease;
+    }
+
+    .boarding-title {
+      color: var(--gold-2);
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .service-catalog {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .service-group {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+
+    .service-group h3 {
+      margin-bottom: 8px;
+      color: var(--gold-2);
+    }
+
+    .service-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+      margin-top: 10px;
+      align-items: flex-start;
+    }
+
+    .service-item small {
+      color: var(--muted);
+      display: block;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .price-chip {
+      white-space: nowrap;
+      border: 1px solid rgba(215, 180, 106, 0.35);
+      background: rgba(215, 180, 106, 0.12);
+      color: var(--gold-2);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.86rem;
+    }
+
+    .admin-panel {
+      margin-top: 14px;
+    }
+
+    .admin-kpi {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .admin-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .admin-table th,
+    .admin-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      color: var(--muted);
+    }
+
+    .admin-table th {
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .admin-empty {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 300;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: linear-gradient(160deg, rgba(215,180,106,0.24), rgba(255,255,255,0.06));
+      color: var(--text);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-size: 1.15rem;
+      animation: pulseGlow 2.4s ease-in-out infinite;
+    }
+
+    body.light-theme .header {
+      background: rgba(246, 243, 238, 0.76);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: var(--shadow); }
+      50% { box-shadow: 0 0 0 8px rgba(215, 180, 106, 0.08), var(--shadow); }
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-14px) scale(1.04); }
+    }
+
+    /* =========================
+       АДАПТИВ
+       ========================= */
+    @media (max-width: 1080px) {
+      .hero-wrap,
+      .dashboard-layout,
+      .pricing,
+      .grid-3,
+      .subscriptions-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .hero-wrap,
+      .pricing,
+      .grid-3,
+      .form-grid,
+      .testimonials-grid,
+      .service-catalog,
+      .admin-kpi,
+      .subscriptions-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        position: absolute;
+        top: 79px;
+        left: 0;
+        width: 100%;
+        padding: 14px 4%;
+        border-bottom: 1px solid var(--line);
+        background: var(--bg);
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav-links.show {
+        display: flex;
+      }
+
+      .mobile-toggle {
+        display: inline-flex;
+      }
+
+      .nav-actions .btn-ghost {
+        display: none;
+      }
+
+      .hero-left {
+        padding: 26px;
+      }
+
+      .hero-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- =========================
+       HEADER / НАВИГАЦИЯ
+       ========================= -->
+  <header class="header">
+    <div class="container nav">
+      <a href="../index.html" class="brand">
+        <span class="brand-dot"></span>
+        <span>PetLux Premium</span>
+      </a>
+
+      <nav id="navLinks" class="nav-links">
+        <a href="../index.html">Главная</a>
+        <a href="#services">Услуги</a>
+        <a href="#advantages">Преимущества</a>
+        <a href="#pricing">Тарифы</a>
+        <a href="#reviews">Отзывы</a>
+        <a href="#booking">Бронирование</a>
+        <a href="#cabinet">Личный кабинет</a>
+        <a href="#admin">Админ</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="btn btn-ghost" href="#request">Оставить заявку</a>
+        <a class="btn btn-primary" href="#booking">Забронировать</a>
+        <button id="mobileToggle" class="mobile-toggle">Меню</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================
+       HERO
+       ========================= -->
+  <section id="hero" class="hero">
+    <div class="container hero-wrap">
+      <article class="hero-left">
+        <span class="badge">Премиум-уход 24/7 • Персональный подход</span>
+        <h1 class="hero-title">Безупречный сервис для ваших питомцев уровня luxury</h1>
+        <p class="hero-text">
+          PetLux объединяет персонального ассистента, онлайн-бронирование, календарь визитов
+          и прозрачный контроль всех услуг в едином личном кабинете.
+          Забота, как у лучших мировых премиум-брендов.
+        </p>
+
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#booking">Начать бронирование</a>
+          <a class="btn btn-ghost" href="#cabinet">Открыть кабинет</a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat">
+            <h4>98%</h4>
+            <p>повторных обращений клиентов</p>
+          </div>
+          <div class="stat">
+            <h4>15 мин</h4>
+            <p>среднее время подтверждения заявки</p>
+          </div>
+          <div class="stat">
+            <h4>4.9/5</h4>
+            <p>средняя оценка сервиса</p>
+          </div>
+        </div>
+      </article>
+
+      <aside class="hero-right">
+        <div class="trust-card">
+          <div class="trust-icon">1</div>
+          <div>
+            <h5>Персональный concierge</h5>
+            <p>Координатор следит за расписанием, подбором специалистов и напоминаниями.</p>
+          </div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon">2</div>
+          <div>
+            <h5>Премиальные партнёры</h5>
+            <p>Проверенные грумеры, ветеринары и pet-отели с высоким стандартом качества.</p>
+          </div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon">3</div>
+          <div>
+            <h5>Цифровой контроль</h5>
+            <p>Все визиты, услуги и документы хранятся в вашем личном кабинете и календаре.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- =========================
+       УСЛУГИ
+       ========================= -->
+  <section id="services" class="section reveal">
+    <div class="container">
+      <span class="badge">Премиальный уход</span>
+      <h2 class="section-title">Услуги и стоимость в удобных пакетах</h2>
+      <p class="section-subtitle">
+        Раздел построен по формату «варианты + стоимость», чтобы было проще выбрать нужный сценарий заботы о питомце.
+      </p>
+
+      <div class="service-catalog">
+        <!-- Карточка услуги: ВЫГУЛ -->
+        <article class="service-group">
+          <h3>Выгул собак</h3>
+          <p class="muted">Безопасный выгул с GPS, фото и отчётом после каждой прогулки.</p>
+          <div class="service-item">
+            <div>
+              <strong>Пробный выгул с хозяином</strong>
+              <small>Знакомство с исполнителем и настройка маршрута.</small>
+            </div>
+            <span class="price-chip">490 ₽</span>
+          </div>
+          <div class="service-item">
+            <div>
+              <strong>Короткий выгул (15-20 мин)</strong>
+              <small>Подходит для пожилых собак и коротких выходов.</small>
+            </div>
+            <span class="price-chip">390 ₽</span>
+          </div>
+          <div class="service-item">
+            <div>
+              <strong>Длительный выгул (1 час)</strong>
+              <small>Игры, активность и закрепление полезного поведения.</small>
+            </div>
+            <span class="price-chip">890 ₽</span>
+          </div>
+        </article>
+
+        <!-- Карточка услуги: ПЕРЕДЕРЖКА У ДОГСИТТЕРА -->
+        <article class="service-group">
+          <h3>Передержка у догситтера</h3>
+          <p class="muted">Ежедневные фото/видео-отчёты и строгий режим по анкете питомца.</p>
+          <div class="service-item">
+            <div>
+              <strong>Передержка + 2 выгула</strong>
+              <small>Стандартный режим для большинства питомцев.</small>
+            </div>
+            <span class="price-chip">1950 ₽</span>
+          </div>
+          <div class="service-item">
+            <div>
+              <strong>Передержка + 3 выгула</strong>
+              <small>Для активных собак и щенков.</small>
+            </div>
+            <span class="price-chip">2250 ₽</span>
+          </div>
+          <div class="service-item">
+            <div>
+              <strong>Передержка без отлучения</strong>
+              <small>Максимум внимания при особых потребностях.</small>
+            </div>
+            <span class="price-chip">3750 ₽</span>
+          </div>
+        </article>
+
+        <!-- Карточка услуги: ПЕРЕДЕРЖКА У ВАС ДОМА -->
+        <article class="service-group">
+          <h3>Передержка у вас дома</h3>
+          <p class="muted">Сохранение привычной среды, графика и питания питомца.</p>
+          <div class="service-item">
+            <div>
+              <strong>Передержка + 2 выгула</strong>
+              <small>Комфортный вариант для тревожных питомцев.</small>
+            </div>
+            <span class="price-chip">2350 ₽</span>
+          </div>
+          <div class="service-item">
+            <div>
+              <strong>Передержка + 3 выгула</strong>
+              <small>Расширенный режим для активных собак.</small>
+            </div>
+            <span class="price-chip">2750 ₽</span>
+          </div>
+          <div class="service-item">
+            <div>
+              <strong>Передержка без отлучения</strong>
+              <small>Индивидуальный формат для особых случаев.</small>
+            </div>
+            <span class="price-chip">4150 ₽</span>
+          </div>
+        </article>
+
+        <!-- Карточка услуги: СОПРОВОЖДЕНИЕ И КИНОЛОГ -->
+        <article class="service-group">
+          <h3>Сопровождение и кинолог</h3>
+          <p class="muted">Сопровождение в клинику/на груминг и коррекция поведения с кинологом.</p>
+          <div class="service-item">
+            <div>
+              <strong>Сопровождение на процедуры</strong>
+              <small>Транспортировка питомца и сопровождение до завершения визита.</small>
+            </div>
+            <span class="price-chip">1290 ₽</span>
+          </div>
+          <div class="service-item">
+            <div>
+              <strong>Кинолог с выездом</strong>
+              <small>Тренировка дома в комфортной среде для питомца.</small>
+            </div>
+            <span class="price-chip">3000 ₽</span>
+          </div>
+          <div class="service-item">
+            <div>
+              <strong>Онлайн-консультация кинолога</strong>
+              <small>Разбор поведения и рекомендации в дистанционном формате.</small>
+            </div>
+            <span class="price-chip">2000 ₽</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       ПРЕИМУЩЕСТВА
+       ========================= -->
+  <section id="advantages" class="section reveal">
+    <div class="container">
+      <span class="badge">Почему выбирают нас</span>
+      <h2 class="section-title">Премиальные стандарты сервиса</h2>
+      <p class="section-subtitle">
+        Все процессы построены так, чтобы вы получали спокойствие, прозрачность и высокий уровень заботы.
+      </p>
+
+      <div class="grid-3">
+        <article class="card">
+          <div class="icon">A</div>
+          <h3>Единый кабинет клиента</h3>
+          <p>История визитов, онлайн-запись, напоминания и статус заявок в одном интерфейсе.</p>
+        </article>
+        <article class="card">
+          <div class="icon">B</div>
+          <h3>Гибкое онлайн-бронирование</h3>
+          <p>Быстрый выбор услуги, даты, времени и специалиста без звонков и ожидания.</p>
+        </article>
+        <article class="card">
+          <div class="icon">C</div>
+          <h3>Прозрачная коммуникация</h3>
+          <p>Подтверждения, уведомления и сопровождение на каждом этапе оказания услуг.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       ТАРИФЫ
+       ========================= -->
+  <section id="pricing" class="section reveal">
+    <div class="container">
+      <span class="badge">Абонементы</span>
+      <h2 class="section-title">Тарифные планы с фиксированной выгодой</h2>
+      <p class="section-subtitle">
+        Формат блока аналогичен референсу: пакеты с включёнными услугами, закреплённым специалистом и цифровым контролем.
+      </p>
+
+      <div class="pricing">
+        <article class="plan">
+          <span class="plan-ribbon">STANDARD</span>
+          <div class="plan-name">Лайт</div>
+          <h3>Базовый пакет • 🐾</h3>
+          <div class="plan-price-wrap">
+            <div class="price">4 990 ₽</div>
+            <span class="price-old">5 490 ₽</span>
+          </div>
+          <div class="period">за пакет</div>
+          <p class="plan-note">5 длительных выгулов + 1 короткий выгул в подарок.</p>
+          <ul class="features">
+            <li>Функция отслеживания маршрута и времени</li>
+            <li>Фото- и текстовые отчёты после услуги</li>
+            <li>Календарь активности питомца</li>
+            <li>Email-подтверждения бронирований</li>
+          </ul>
+          <button class="btn btn-ghost plan-choose" data-plan="Лайт">Выбрать тариф</button>          
+        </article>
+
+        <article class="plan popular">
+          <span class="plan-ribbon">TOP</span>
+          <div class="plan-name">люкс                      </div>
+          <h3>Расширенный пакет • ✨</h3>
+          <div class="plan-price-wrap">
+            <div class="price">8 250 ₽</div>
+            <span class="price-old">9 400 ₽</span>
+          </div>
+          <div class="period">за пакет</div>
+          <p class="plan-note">10 длительных выгулов + закреплённый исполнитель.</p>
+          <ul class="features">
+            <li>Приоритет в подборе специалиста</li>
+            <li>Полные фото/аудио/текст отчёты</li>
+            <li>Поддержка менеджера во время услуги</li>
+            <li>История активности и напоминания</li>
+          </ul>
+          <button class="btn btn-primary plan-choose" data-plan="люкс">Выбрать тариф</button>
+        </article>
+
+        <article class="plan">
+          <span class="plan-ribbon">VIP</span>
+          <div class="plan-name">супер-люкс</div>
+          <h3>Максимальный пакет • 👑</h3>
+          <div class="plan-price-wrap">
+            <div class="price">24 990 ₽</div>
+            <span class="price-old">29 900 ₽</span>
+          </div>
+          <div class="period">за пакет</div>
+          <p class="plan-note">30 длительных выгулов + 2 онлайн-занятия с кинологом.</p>
+          <ul class="features">
+            <li>Личный куратор и закреплённый исполнитель</li>
+            <li>Максимальный приоритет по слотам</li>
+            <li>Расширенный календарь и дашборд</li>
+            <li>Премиум-сопровождение 24/7</li>
+          </ul>
+          <button class="btn btn-ghost plan-choose" data-plan="супер-люкс">Выбрать тариф</button>
+        </article>
+      </div>
+
+      <div class="subscriptions-grid">
+        <article class="subscription-card">
+          <span class="subscription-badge">Хит для занятых владельцев</span>
+          <h4>work life pet — преимущества</h4>
+          <ul class="subscription-perks">
+            <li>Стабильный график прогулок в одном пакете</li>
+            <li>Контроль через отчёты и трекинг маршрута</li>
+            <li>Быстрое продление и приоритетная запись</li>
+          </ul>
+        </article>
+
+        <article class="subscription-card">
+          <span class="subscription-badge">Оптимальный баланс</span>
+          <h4>люкс-лапка — преимущества</h4>
+          <ul class="subscription-perks">
+            <li>Закреплённый исполнитель для питомца</li>
+            <li>Поддержка менеджера во время оказания услуг</li>
+            <li>Расширенный журнал активности в кабинете</li>
+          </ul>
+        </article>
+
+        <article class="subscription-card">
+          <span class="subscription-badge">Премиум-уровень заботы</span>
+          <h4>пушистый прайм — преимущества</h4>
+          <ul class="subscription-perks">
+            <li>Максимальный приоритет по времени и специалистам</li>
+            <li>Включены консультации кинолога</li>
+            <li>Персональный куратор и полный контроль сервиса</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       ФОРМА ЗАЯВКИ
+       ========================= -->
+  <section id="request" class="section reveal">
+    <div class="container">
+      <span class="badge">Связь с менеджером</span>
+      <h2 class="section-title">Оставьте заявку на персональную консультацию</h2>
+      <p class="section-subtitle">
+        Менеджер свяжется с вами, уточнит потребности и предложит оптимальный формат сервиса.
+      </p>
+
+      <div class="panel">
+        <form id="leadForm" class="form-grid">
+          <div class="field">
+            <label for="leadName">Ваше имя</label>
+            <input id="leadName" name="name" type="text" placeholder="Например, Анна" required />
+          </div>
+          <div class="field">
+            <label for="leadPhone">Телефон</label>
+            <input id="leadPhone" name="phone" type="tel" placeholder="+7 (___) ___-__-__" required />
+          </div>
+          <div class="field">
+            <label for="leadPet">Питомец</label>
+            <input id="leadPet" name="pet" type="text" placeholder="Кошка / собака / другой" required />
+          </div>
+          <div class="field">
+            <label for="leadService">Интересующая услуга</label>
+            <select id="leadService" name="service" required>
+              <option value="">Выберите услугу</option>
+              <option>Выгул собак</option>
+              <option>Передержка у догситтера</option>
+              <option>Передержка у вас дома</option>
+              <option>Сопровождение на процедуры</option>
+              <option>Кинолог с выездом</option>
+              <option>Онлайн-консультация кинолога</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="leadComment">Комментарий</label>
+            <textarea id="leadComment" name="comment" placeholder="Опишите ваши пожелания..."></textarea>
+          </div>
+          <div class="field full">
+            <button class="btn btn-primary" type="submit">Отправить заявку</button>
+            <p id="leadStatus" class="status"></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       ОНЛАЙН-БРОНИРОВАНИЕ + КАЛЕНДАРЬ
+       ========================= -->
+  <section id="booking" class="section reveal">
+    <div class="container">
+      <span class="badge">Онлайн-бронирование</span>
+      <h2 class="section-title">Забронируйте услугу в 2 клика</h2>
+      <p class="section-subtitle">
+        Выберите услугу, дату и время. Ваши записи автоматически появятся в календаре и личном кабинете.
+      </p>
+
+      <div class="dashboard-layout">
+        <div class="panel">
+          <form id="bookingForm" class="form-grid">
+            <div class="field full">
+              <label for="bookService">Услуга</label>
+              <select id="bookService" required>
+                <option value="">Выберите услугу</option>
+                <option>Выгул собак</option>
+                <option>Передержка у догситтера</option>
+                <option>Передержка у вас дома</option>
+                <option>Сопровождение на процедуры</option>
+                <option>Кинолог с выездом</option>
+                <option>Онлайн-консультация кинолога</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="bookDate">Дата</label>
+              <input id="bookDate" type="date" required />
+            </div>
+
+            <div class="field">
+              <label for="bookSpecialist">Специалист</label>
+              <select id="bookSpecialist" required>
+                <option value="">Выберите специалиста</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="bookTime">Время</label>
+              <select id="bookTime" required>
+                <option value="">Выберите время</option>
+                <option>09:00</option>
+                <option>10:00</option>
+                <option>11:00</option>
+                <option>12:00</option>
+                <option>13:00</option>
+                <option>14:00</option>
+                <option>15:00</option>
+                <option>16:00</option>
+                <option>17:00</option>
+                <option>18:00</option>
+              </select>
+              <p id="slotStatus" class="slot-hint">Выберите услугу и дату для загрузки свободных слотов.</p>
+            </div>
+
+            <div class="field full">
+              <label for="bookPet">Имя питомца</label>
+              <input id="bookPet" type="text" placeholder="Например, Боня" required />
+            </div>
+
+            <div id="boardingQuestionnaire" class="field full boarding-questionnaire hidden">
+              <h4 class="boarding-title">Анкета для передержки (обязательно)</h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="petFeeding">Кормление</label>
+                  <input id="petFeeding" type="text" placeholder="Частота, объём, особенности рациона" />
+                </div>
+                <div class="field">
+                  <label for="petRoutine">Режим</label>
+                  <input id="petRoutine" type="text" placeholder="Время сна, прогулок, активности" />
+                </div>
+                <div class="field">
+                  <label for="boardingDays">Количество дней</label>
+                  <input id="boardingDays" type="number" min="1" step="1" placeholder="Например, 5" />
+                </div>
+                <div class="field full">
+                  <label for="petHabits">Привычки и особенности</label>
+                  <textarea id="petHabits" placeholder="Триггеры, поведение, лекарства, команды"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="field full">
+              <button class="btn btn-primary" type="submit">Подтвердить бронь</button>
+              <p id="bookingStatus" class="status"></p>
+              <p class="muted">Для полноценной работы авторизуйтесь в личном кабинете ниже.</p>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="calendar">
+            <div class="cal-head">
+              <button id="prevMonth" class="btn btn-ghost" type="button">←</button>
+              <strong id="calTitle">Календарь</strong>
+              <button id="nextMonth" class="btn btn-ghost" type="button">→</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+          </div>
+          <p class="muted" style="margin-top:10px;">Точка в ячейке дня означает наличие бронирования.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       ОТЗЫВЫ КЛИЕНТОВ
+       ========================= -->
+  <section id="reviews" class="section reveal">
+    <div class="container">
+      <span class="badge">Отзывы клиентов</span>
+      <h2 class="section-title">Нас рекомендуют владельцы питомцев</h2>
+      <p class="section-subtitle">
+        Реальные впечатления клиентов о качестве сервиса, скорости поддержки и уровне заботы.
+      </p>
+
+      <div class="testimonials-grid">
+        <article class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            Впервые увидела настолько аккуратный сервис: от записи до фотоотчёта после груминга.
+            Очень комфортный личный кабинет и прозрачный процесс.
+          </p>
+          <p class="testimonial-author">Елена, владелица шпица Руни</p>
+        </article>
+
+        <article class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            Выбираю слот онлайн за минуту, а поддержка отвечает почти сразу.
+            Питомец спокоен, потому что специалисты реально высокого уровня.
+          </p>
+          <p class="testimonial-author">Максим, владелец кота Тео</p>
+        </article>
+
+        <article class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            Премиальный подход чувствуется в деталях: напоминания, персональный менеджер
+            и гибкий календарь с актуальными слотами в реальном времени.
+          </p>
+          <p class="testimonial-author">Ирина, владелица корги Бруно</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       ЛИЧНЫЙ КАБИНЕТ
+       ========================= -->
+  <section id="cabinet" class="section reveal">
+    <div class="container">
+      <span class="badge">Личный кабинет</span>
+      <h2 class="section-title">Управляйте аккаунтом и записями</h2>
+      <p class="section-subtitle">
+        Регистрация, авторизация, история бронирований и отмена визитов — всё в одном месте.
+      </p>
+
+      <div class="dashboard-layout">
+        <div class="panel">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="register">Регистрация</button>
+            <button class="tab-btn" data-tab="login">Вход</button>
+          </div>
+
+          <form id="registerForm" class="form-grid">
+            <div class="field full">
+              <label for="regName">Имя</label>
+              <input id="regName" type="text" required />
+            </div>
+            <div class="field full">
+              <label for="regEmail">Email</label>
+              <input id="regEmail" type="email" required />
+            </div>
+            <div class="field full">
+              <label for="regPassword">Пароль</label>
+              <input id="regPassword" type="password" minlength="6" required />
+            </div>
+            <div class="field full">
+              <button class="btn btn-primary" type="submit">Создать аккаунт</button>
+              <p id="registerStatus" class="status"></p>
+            </div>
+          </form>
+
+          <form id="loginForm" class="form-grid hidden">
+            <div class="field full">
+              <label for="loginEmail">Email</label>
+              <input id="loginEmail" type="email" required />
+            </div>
+            <div class="field full">
+              <label for="loginPassword">Пароль</label>
+              <input id="loginPassword" type="password" required />
+            </div>
+            <div class="field full">
+              <button class="btn btn-primary" type="submit">Войти</button>
+              <p id="loginStatus" class="status"></p>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div id="userInfoWrap" class="hidden">
+            <span id="userChip" class="user-chip"></span>
+            <button id="logoutBtn" class="btn btn-ghost" style="margin-left:8px;">Выйти</button>
+          </div>
+
+          <h3 style="margin: 12px 0 8px;">Мои бронирования</h3>
+          <p class="muted">После входа все ваши записи будут отображаться здесь.</p>
+
+          <div id="bookingList" class="booking-list"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       АДМИН-ПАНЕЛЬ
+       ========================= -->
+  <section id="admin" class="section reveal">
+    <div class="container">
+      <span class="badge">Панель управления</span>
+      <h2 class="section-title">Админ-панель бронирований</h2>
+      <p class="section-subtitle">
+        Доступно только администраторам: просмотр заявок в реальном времени, ключевые метрики и управление статусами.
+      </p>
+
+      <div id="adminPanel" class="panel admin-panel hidden">
+        <div class="admin-kpi">
+          <div class="stat">
+            <h4 id="kpiTotal">0</h4>
+            <p>Всего бронирований</p>
+          </div>
+          <div class="stat">
+            <h4 id="kpiToday">0</h4>
+            <p>Брони на сегодня</p>
+          </div>
+          <div class="stat">
+            <h4 id="kpiSpecialists">0</h4>
+            <p>Занятых специалистов</p>
+          </div>
+        </div>
+
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Время</th>
+                <th>Услуга</th>
+                <th>Специалист</th>
+                <th>Питомец</th>
+                <th>Клиент</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody id="adminBookingTableBody"></tbody>
+          </table>
+        </div>
+        <p id="adminEmpty" class="admin-empty hidden">Пока нет бронирований для отображения.</p>
+      </div>
+
+      <div id="adminDenied" class="panel">
+        <p class="muted">Войдите под админ-аккаунтом, чтобы увидеть панель управления.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      © 2026 PetLux Premium. Премиум-сервис для владельцев домашних животных.
+    </div>
+  </footer>
+  <!-- Плавающая кнопка смены темы (в правом нижнем углу) -->
+  <button id="themeToggle" class="theme-toggle" title="Сменить тему">🌙</button>
+
+  <!-- Локальный конфиг проекта (скопируйте config/app.config.example.js -> config/app.config.js) -->
+  <script src="../config/app.config.js"></script>
+
+  <!-- Firebase SDK (реальный backend: Auth + Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <!-- EmailJS для подтверждений по email -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <script>
+    /* ==========================================
+       ДОКУМЕНТАЦИЯ ПО HTML / JS
+       - Реальный backend: Firebase Auth + Firestore.
+       - Подтверждения по email: EmailJS (при заполненных ключах).
+       - Фильтр слотов: услуга + специалист + дата в реальном времени.
+       - Админ-панель: доступ только admin-пользователям.
+       ========================================== */
+
+    const qs = (s) => document.querySelector(s);
+    const qsa = (s) => Array.from(document.querySelectorAll(s));
+
+    const monthNamesRu = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+    const weekdaysRu = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+    const TIME_SLOTS = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+    const SPECIALISTS = [
+      { id: "alina", name: "Алина Петрова", services: ["Выгул собак", "Передержка у догситтера"] },
+      { id: "karina", name: "Карина Хан", services: ["Выгул собак", "Сопровождение на процедуры"] },
+      { id: "shukrona", name: "Шукрона Латипова", services: ["Передержка у вас дома", "Выгул собак"] },
+      { id: "kinolog_ivan", name: "Иван (кинолог)", services: ["Кинолог с выездом", "Онлайн-консультация кинолога"] }
+    ];
+
+    const storage = {
+      get(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch {
+          return fallback;
+        }
+      },
+      set(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    };
+
+    const formatDateRu = (isoDate) => {
+      const d = new Date(isoDate);
+      return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "long", year: "numeric" });
+    };
+    const toIsoDate = (y, m, d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const normalize = (val) => val.toLowerCase().replace(/\s+/g, "_").replace(/[^a-zа-я0-9_]/gi, "");
+
+    // ---------- ТЕМА ----------
+    const themeToggle = qs("#themeToggle");
+    function applyTheme(theme) {
+      const isLight = theme === "light";
+      document.body.classList.toggle("light-theme", isLight);
+      themeToggle.textContent = isLight ? "☀️" : "🌙";
+      themeToggle.setAttribute("aria-label", isLight ? "Переключить на тёмную тему" : "Переключить на светлую тему");
+      storage.set("theme", theme);
+    }
+    applyTheme(storage.get("theme", "dark"));
+    themeToggle.addEventListener("click", () => applyTheme(document.body.classList.contains("light-theme") ? "dark" : "light"));
+
+    // ---------- МОБИЛЬНОЕ МЕНЮ ----------
+    const mobileToggle = qs("#mobileToggle");
+    const navLinks = qs("#navLinks");
+    mobileToggle.addEventListener("click", () => navLinks.classList.toggle("show"));
+    qsa(".nav-links a").forEach((a) => a.addEventListener("click", () => navLinks.classList.remove("show")));
+
+    // ---------- APP CONFIG ----------
+    // Конфиг подключается из ../config/app.config.js (см. app.config.example.js).
+    const APP_CONFIG = window.__APP_CONFIG__ || {
+      firebase: {
+        apiKey: "PUT_YOUR_API_KEY_HERE",
+        authDomain: "PUT_YOUR_AUTH_DOMAIN_HERE",
+        projectId: "PUT_YOUR_PROJECT_ID_HERE",
+        storageBucket: "PUT_YOUR_STORAGE_BUCKET_HERE",
+        messagingSenderId: "PUT_YOUR_MESSAGING_SENDER_ID_HERE",
+        appId: "PUT_YOUR_APP_ID_HERE"
+      },
+      emailjs: {
+        publicKey: "PUT_EMAILJS_PUBLIC_KEY_HERE",
+        serviceId: "PUT_EMAILJS_SERVICE_ID_HERE",
+        templateId: "PUT_EMAILJS_TEMPLATE_ID_HERE"
+      }
+    };
+    const firebaseConfig = APP_CONFIG.firebase;
+    const EMAILJS_PUBLIC_KEY = APP_CONFIG.emailjs.publicKey;
+    const EMAILJS_SERVICE_ID = APP_CONFIG.emailjs.serviceId;
+    const EMAILJS_TEMPLATE_ID = APP_CONFIG.emailjs.templateId;
+
+    const emailReady =
+      !!EMAILJS_PUBLIC_KEY &&
+      !!EMAILJS_SERVICE_ID &&
+      !!EMAILJS_TEMPLATE_ID &&
+      !EMAILJS_PUBLIC_KEY.startsWith("PUT_") &&
+      !EMAILJS_SERVICE_ID.startsWith("PUT_") &&
+      !EMAILJS_TEMPLATE_ID.startsWith("PUT_");
+    if (emailReady) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+    let backendReady = false;
+    let auth = null;
+    let db = null;
+    try {
+      const app = firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth(app);
+      db = firebase.firestore(app);
+      backendReady = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("PUT_");
+    } catch (error) {
+      console.error("Firebase init error:", error);
+      backendReady = false;
+    }
+
+    // ---------- ОБЩИЕ ЭЛЕМЕНТЫ ----------
+    const leadForm = qs("#leadForm");
+    const leadStatus = qs("#leadStatus");
+    const registerForm = qs("#registerForm");
+    const loginForm = qs("#loginForm");
+    const registerStatus = qs("#registerStatus");
+    const loginStatus = qs("#loginStatus");
+    const userInfoWrap = qs("#userInfoWrap");
+    const userChip = qs("#userChip");
+    const logoutBtn = qs("#logoutBtn");
+    const bookingList = qs("#bookingList");
+    const bookingForm = qs("#bookingForm");
+    const bookingStatus = qs("#bookingStatus");
+    const bookServiceInput = qs("#bookService");
+    const bookSpecialistInput = qs("#bookSpecialist");
+    const bookDateInput = qs("#bookDate");
+    const bookTimeInput = qs("#bookTime");
+    const bookPetInput = qs("#bookPet");
+    const boardingQuestionnaire = qs("#boardingQuestionnaire");
+    const petFeedingInput = qs("#petFeeding");
+    const petRoutineInput = qs("#petRoutine");
+    const boardingDaysInput = qs("#boardingDays");
+    const petHabitsInput = qs("#petHabits");
+    const slotStatus = qs("#slotStatus");
+    const adminPanel = qs("#adminPanel");
+    const adminDenied = qs("#adminDenied");
+    const adminBookingTableBody = qs("#adminBookingTableBody");
+    const adminEmpty = qs("#adminEmpty");
+    const kpiTotal = qs("#kpiTotal");
+    const kpiToday = qs("#kpiToday");
+    const kpiSpecialists = qs("#kpiSpecialists");
+
+    const tabButtons = qsa(".tab-btn");
+    tabButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        tabButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const tab = btn.dataset.tab;
+        registerForm.classList.toggle("hidden", tab !== "register");
+        loginForm.classList.toggle("hidden", tab !== "login");
+      });
+    });
+
+    qsa(".plan-choose").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        qs("#leadComment").value = `Интересует тариф: ${btn.dataset.plan}`;
+        window.location.hash = "#request";
+      });
+    });
+
+    let currentUser = null;
+    let isAdmin = false;
+    let userBookings = [];
+    let allBookings = [];
+    let unsubscribeBookings = null;
+    let unsubscribeSlots = null;
+    let unsubscribeAdminBookings = null;
+
+    function ensureBackendOrShow(statusElement) {
+      if (!backendReady) {
+        statusElement.textContent = "Подключите APP_CONFIG.firebase (или window.__APP_CONFIG__) для активации backend.";
+        statusElement.className = "status error";
+        return false;
+      }
+      return true;
+    }
+
+    function isBoardingService(serviceName) {
+      return serviceName === "Передержка у догситтера" || serviceName === "Передержка у вас дома";
+    }
+
+    function updateBoardingQuestionnaireVisibility() {
+      const enabled = isBoardingService(bookServiceInput.value);
+      boardingQuestionnaire.classList.toggle("hidden", !enabled);
+      [petFeedingInput, petRoutineInput, boardingDaysInput, petHabitsInput].forEach((field) => {
+        field.required = enabled;
+      });
+    }
+
+    function fillSpecialistsByService() {
+      const service = bookServiceInput.value;
+      const matches = service ? SPECIALISTS.filter((s) => s.services.includes(service)) : SPECIALISTS;
+      const previous = bookSpecialistInput.value;
+      bookSpecialistInput.innerHTML = '<option value="">Выберите специалиста</option>';
+      matches.forEach((specialist) => {
+        const option = document.createElement("option");
+        option.value = specialist.id;
+        option.textContent = specialist.name;
+        bookSpecialistInput.appendChild(option);
+      });
+      if (matches.some((s) => s.id === previous)) bookSpecialistInput.value = previous;
+      updateBoardingQuestionnaireVisibility();
+    }
+
+    function renderUserState() {
+      if (currentUser) {
+        userInfoWrap.classList.remove("hidden");
+        userChip.textContent = `Вы вошли как: ${currentUser.displayName || "Пользователь"} (${currentUser.email})`;
+      } else {
+        userInfoWrap.classList.add("hidden");
+      }
+
+      adminPanel.classList.toggle("hidden", !isAdmin);
+      adminDenied.classList.toggle("hidden", isAdmin);
+
+      renderBookingList();
+      renderAdminBookings();
+      renderCalendar();
+    }
+
+    async function sendBookingEmail(booking) {
+      if (!emailReady) return;
+      try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          to_email: booking.userEmail,
+          client_name: currentUser.displayName || "Клиент",
+          pet_name: booking.petName,
+          service_name: booking.service,
+          specialist_name: booking.specialistName,
+          booking_date: booking.date,
+          booking_time: booking.time,
+          boarding_days: booking.petProfile?.boardingDays || "-",
+          pet_feeding: booking.petProfile?.feeding || "-",
+          pet_routine: booking.petProfile?.routine || "-",
+          pet_habits: booking.petProfile?.habits || "-"
+        });
+      } catch (error) {
+        console.error("EmailJS send failed:", error);
+      }
+    }
+
+    leadForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      leadStatus.textContent = "";
+      if (!ensureBackendOrShow(leadStatus)) return;
+      const payload = Object.fromEntries(new FormData(leadForm).entries());
+      try {
+        await db.collection("leads").add({ ...payload, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        leadStatus.textContent = "Заявка отправлена. Менеджер свяжется с вами в ближайшее время.";
+        leadStatus.className = "status success";
+        leadForm.reset();
+      } catch {
+        leadStatus.textContent = "Не удалось отправить заявку. Проверьте Firestore Rules.";
+        leadStatus.className = "status error";
+      }
+    });
+
+    registerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      registerStatus.textContent = "";
+      if (!ensureBackendOrShow(registerStatus)) return;
+      const name = qs("#regName").value.trim();
+      const email = qs("#regEmail").value.trim();
+      const password = qs("#regPassword").value;
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        await cred.user.updateProfile({ displayName: name });
+        await db.collection("users").doc(cred.user.uid).set({
+          name,
+          email,
+          role: "client",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        registerStatus.textContent = "Аккаунт создан. Вы автоматически вошли в систему.";
+        registerStatus.className = "status success";
+        registerForm.reset();
+      } catch (error) {
+        registerStatus.textContent = "Ошибка регистрации: " + (error.message || "проверьте данные");
+        registerStatus.className = "status error";
+      }
+    });
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      loginStatus.textContent = "";
+      if (!ensureBackendOrShow(loginStatus)) return;
+      try {
+        await auth.signInWithEmailAndPassword(qs("#loginEmail").value.trim(), qs("#loginPassword").value);
+        loginStatus.textContent = "Вход выполнен успешно.";
+        loginStatus.className = "status success";
+        loginForm.reset();
+      } catch (error) {
+        loginStatus.textContent = "Ошибка входа: " + (error.message || "неверные данные");
+        loginStatus.className = "status error";
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      if (backendReady) await auth.signOut();
+    });
+
+    const todayIso = new Date().toISOString().split("T")[0];
+    bookDateInput.setAttribute("min", todayIso);
+
+    function renderTimeSlots(busyTimes = new Set()) {
+      const currentValue = bookTimeInput.value;
+      bookTimeInput.innerHTML = '<option value="">Выберите время</option>';
+      TIME_SLOTS.forEach((slot) => {
+        const option = document.createElement("option");
+        option.value = slot;
+        option.textContent = busyTimes.has(slot) ? `${slot} (занято)` : slot;
+        option.disabled = busyTimes.has(slot);
+        bookTimeInput.appendChild(option);
+      });
+      if (currentValue && !busyTimes.has(currentValue)) bookTimeInput.value = currentValue;
+    }
+
+    function watchSlotsRealtime() {
+      if (unsubscribeSlots) {
+        unsubscribeSlots();
+        unsubscribeSlots = null;
+      }
+
+      const service = bookServiceInput.value;
+      const specialistId = bookSpecialistInput.value;
+      const date = bookDateInput.value;
+      if (!backendReady || !service || !specialistId || !date) {
+        slotStatus.textContent = "Выберите услугу, специалиста и дату для загрузки свободных слотов.";
+        renderTimeSlots();
+        return;
+      }
+
+      slotStatus.textContent = "Обновляем слоты в реальном времени...";
+      unsubscribeSlots = db.collection("bookings")
+        .where("service", "==", service)
+        .where("specialistId", "==", specialistId)
+        .where("date", "==", date)
+        .onSnapshot((snapshot) => {
+          const busyTimes = new Set(snapshot.docs.map((doc) => doc.data().time));
+          renderTimeSlots(busyTimes);
+          const freeCount = TIME_SLOTS.length - busyTimes.size;
+          slotStatus.textContent = freeCount > 0
+            ? `Свободных слотов: ${freeCount}. Данные обновляются в реальном времени.`
+            : "Свободных слотов нет. Выберите другую дату или специалиста.";
+        }, () => {
+          slotStatus.textContent = "Не удалось получить слоты. Проверьте подключение к Firestore.";
+        });
+    }
+
+    fillSpecialistsByService();
+    renderTimeSlots();
+    bookServiceInput.addEventListener("change", () => {
+      fillSpecialistsByService();
+      watchSlotsRealtime();
+    });
+    bookSpecialistInput.addEventListener("change", watchSlotsRealtime);
+    bookDateInput.addEventListener("change", watchSlotsRealtime);
+
+    bookingForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      bookingStatus.textContent = "";
+      if (!ensureBackendOrShow(bookingStatus)) return;
+      if (!currentUser) {
+        bookingStatus.textContent = "Для бронирования войдите в личный кабинет.";
+        bookingStatus.className = "status error";
+        window.location.hash = "#cabinet";
+        return;
+      }
+
+      const service = bookServiceInput.value;
+      const specialistId = bookSpecialistInput.value;
+      const specialistName = SPECIALISTS.find((s) => s.id === specialistId)?.name || specialistId;
+      const date = bookDateInput.value;
+      const time = bookTimeInput.value;
+      const petName = bookPetInput.value.trim();
+      const petProfile = {
+        boardingDays: Number(boardingDaysInput.value || 0),
+        feeding: petFeedingInput.value.trim(),
+        routine: petRoutineInput.value.trim(),
+        habits: petHabitsInput.value.trim()
+      };
+      if (!service || !specialistId || !date || !time || !petName) {
+        bookingStatus.textContent = "Заполните все поля бронирования.";
+        bookingStatus.className = "status error";
+        return;
+      }
+      if (isBoardingService(service) && (!petProfile.boardingDays || !petProfile.feeding || !petProfile.routine || !petProfile.habits)) {
+        bookingStatus.textContent = "Для передержки заполните анкету: количество дней, кормление, режим и привычки.";
+        bookingStatus.className = "status error";
+        return;
+      }
+
+      const bookingId = `${date}_${normalize(service)}_${specialistId}_${time.replace(":", "")}`;
+      const bookingRef = db.collection("bookings").doc(bookingId);
+      try {
+        await db.runTransaction(async (transaction) => {
+          const existing = await transaction.get(bookingRef);
+          if (existing.exists) throw new Error("Этот слот уже занят. Выберите другое время.");
+          transaction.set(bookingRef, {
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            service,
+            specialistId,
+            specialistName,
+            date,
+            time,
+            petName,
+            petProfile: isBoardingService(service) ? petProfile : null,
+            status: "confirmed",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        });
+
+        const bookingData = { userEmail: currentUser.email, service, specialistName, date, time, petName, petProfile };
+        await sendBookingEmail(bookingData);
+        bookingStatus.textContent = emailReady
+          ? "Бронь подтверждена. Письмо с деталями отправлено на email."
+          : "Бронь подтверждена. Для email-подтверждений подключите EmailJS.";
+        bookingStatus.className = "status success";
+        bookingForm.reset();
+        fillSpecialistsByService();
+        updateBoardingQuestionnaireVisibility();
+        renderTimeSlots();
+        watchSlotsRealtime();
+      } catch (error) {
+        bookingStatus.textContent = error.message || "Не удалось создать бронирование.";
+        bookingStatus.className = "status error";
+      }
+    });
+
+    function renderBookingList() {
+      if (!currentUser) {
+        bookingList.innerHTML = '<p class="muted">Войдите в аккаунт, чтобы видеть ваши бронирования.</p>';
+        return;
+      }
+      if (!userBookings.length) {
+        bookingList.innerHTML = '<p class="muted">У вас пока нет активных записей.</p>';
+        return;
+      }
+      bookingList.innerHTML = userBookings.map((b) => `
+        <div class="booking-item">
+          <div class="booking-meta">
+            <strong>${b.service}</strong>
+            <span>${formatDateRu(b.date)} • ${b.time}</span>
+            <span class="muted">Специалист: ${b.specialistName || "-"}</span>
+            <span class="muted">Питомец: ${b.petName}</span>
+            ${b.petProfile ? `<span class="muted">Передержка: ${b.petProfile.boardingDays || "-"} дн.; анкета заполнена</span>` : ""}
+          </div>
+          <button class="btn-danger" data-cancel-id="${b.id}">Отменить</button>
+        </div>
+      `).join("");
+
+      qsa("[data-cancel-id]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!backendReady) return;
+          await db.collection("bookings").doc(btn.dataset.cancelId).delete();
+        });
+      });
+    }
+
+    function renderAdminBookings() {
+      if (!isAdmin) return;
+      const today = new Date().toISOString().slice(0, 10);
+      kpiTotal.textContent = String(allBookings.length);
+      kpiToday.textContent = String(allBookings.filter((b) => b.date === today).length);
+      kpiSpecialists.textContent = String(new Set(allBookings.map((b) => b.specialistId)).size);
+
+      if (!allBookings.length) {
+        adminBookingTableBody.innerHTML = "";
+        adminEmpty.classList.remove("hidden");
+        return;
+      }
+      adminEmpty.classList.add("hidden");
+      adminBookingTableBody.innerHTML = allBookings.map((b) => `
+        <tr>
+          <td>${b.date}</td>
+          <td>${b.time}</td>
+          <td>${b.service}</td>
+          <td>${b.specialistName || "-"}</td>
+          <td>${b.petName}</td>
+          <td>${b.userEmail}</td>
+          <td>${b.status || "confirmed"}</td>
+        </tr>
+      `).join("");
+    }
+
+    const calTitle = qs("#calTitle");
+    const calGrid = qs("#calGrid");
+    const prevMonthBtn = qs("#prevMonth");
+    const nextMonthBtn = qs("#nextMonth");
+    const calendarState = { year: new Date().getFullYear(), month: new Date().getMonth() };
+
+    function getBookedDatesForCurrentUser() {
+      return new Set(userBookings.map((b) => b.date));
+    }
+
+    function renderCalendar() {
+      const { year, month } = calendarState;
+      calTitle.textContent = `${monthNamesRu[month]} ${year}`;
+      const booked = getBookedDatesForCurrentUser();
+      const today = new Date();
+      const todayIsoLocal = toIsoDate(today.getFullYear(), today.getMonth(), today.getDate());
+
+      calGrid.innerHTML = "";
+      weekdaysRu.forEach((wd) => {
+        const el = document.createElement("div");
+        el.className = "cal-weekday";
+        el.textContent = wd;
+        calGrid.appendChild(el);
+      });
+
+      const firstOfMonth = new Date(year, month, 1);
+      const startOffset = (firstOfMonth.getDay() + 6) % 7;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysPrevMonth = new Date(year, month, 0).getDate();
+
+      for (let i = 0; i < 42; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cal-day";
+        let cellDay, cellMonth, cellYear, isOtherMonth = false;
+        if (i < startOffset) {
+          cellDay = daysPrevMonth - startOffset + i + 1;
+          cellMonth = month - 1;
+          cellYear = year;
+          if (cellMonth < 0) { cellMonth = 11; cellYear -= 1; }
+          isOtherMonth = true;
+        } else if (i >= startOffset + daysInMonth) {
+          cellDay = i - (startOffset + daysInMonth) + 1;
+          cellMonth = month + 1;
+          cellYear = year;
+          if (cellMonth > 11) { cellMonth = 0; cellYear += 1; }
+          isOtherMonth = true;
+        } else {
+          cellDay = i - startOffset + 1;
+          cellMonth = month;
+          cellYear = year;
+        }
+        const iso = toIsoDate(cellYear, cellMonth, cellDay);
+        cell.textContent = cellDay;
+        if (isOtherMonth) cell.classList.add("other-month");
+        if (iso === todayIsoLocal) cell.classList.add("today");
+        if (booked.has(iso)) cell.classList.add("booked");
+        calGrid.appendChild(cell);
+      }
+    }
+
+    prevMonthBtn.addEventListener("click", () => {
+      calendarState.month -= 1;
+      if (calendarState.month < 0) { calendarState.month = 11; calendarState.year -= 1; }
+      renderCalendar();
+    });
+    nextMonthBtn.addEventListener("click", () => {
+      calendarState.month += 1;
+      if (calendarState.month > 11) { calendarState.month = 0; calendarState.year += 1; }
+      renderCalendar();
+    });
+
+    async function detectAdmin(user) {
+      if (!user || !backendReady) return false;
+      try {
+        const doc = await db.collection("users").doc(user.uid).get();
+        const role = doc.exists ? doc.data().role : "client";
+        return role === "admin";
+      } catch {
+        return false;
+      }
+    }
+
+    if (backendReady) {
+      auth.onAuthStateChanged(async (user) => {
+        currentUser = user;
+        isAdmin = await detectAdmin(user);
+
+        if (unsubscribeBookings) { unsubscribeBookings(); unsubscribeBookings = null; }
+        if (unsubscribeAdminBookings) { unsubscribeAdminBookings(); unsubscribeAdminBookings = null; }
+
+        if (user) {
+          unsubscribeBookings = db.collection("bookings")
+            .where("userId", "==", user.uid)
+            .onSnapshot((snapshot) => {
+              userBookings = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+                .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+              renderUserState();
+            });
+        } else {
+          userBookings = [];
+        }
+
+        if (isAdmin) {
+          unsubscribeAdminBookings = db.collection("bookings")
+            .onSnapshot((snapshot) => {
+              allBookings = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+                .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+              renderUserState();
+            });
+        } else {
+          allBookings = [];
+          renderUserState();
+        }
+      });
+    } else {
+      renderUserState();
+    }
+
+    const revealElements = qsa(".reveal");
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.16 });
+    revealElements.forEach((el) => revealObserver.observe(el));
+
+    // Микро-анимация чисел цен в тарифах при первом появлении блока.
+    const pricingSection = qs("#pricing");
+    function animatePriceValue(el) {
+      const target = Number((el.dataset.targetPrice || "").replace(/\D/g, ""));
+      if (!target) return;
+      const duration = 900;
+      const startTime = performance.now();
+
+      function step(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = Math.round(target * eased);
+        el.textContent = `${value.toLocaleString("ru-RU")} ₽`;
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    qsa("#pricing .price").forEach((priceEl) => {
+      const raw = priceEl.textContent || "";
+      const parsed = raw.replace(/\D/g, "");
+      priceEl.dataset.targetPrice = parsed;
+      priceEl.textContent = "0 ₽";
+    });
+
+    const pricingObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        qsa("#pricing .price").forEach((priceEl) => animatePriceValue(priceEl));
+        pricingObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.25 });
+    if (pricingSection) pricingObserver.observe(pricingSection);
+
+    renderCalendar();
+    watchSlotsRealtime();
+  </script>
+</body>
+</html>
